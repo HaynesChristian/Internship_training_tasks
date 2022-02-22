@@ -1,0 +1,347 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model admins {
+  id                                                                String                   @id @db.Char(36)
+  full_name                                                         String?                  @db.VarChar(255)
+  username                                                          String?                  @db.VarChar(255)
+  password                                                          String?                  @db.VarChar(255)
+  city_code                                                         String?                  @db.VarChar(255)
+  access_roles                                                      String?                  @db.LongText
+  is_active                                                         Boolean?
+  is_deleted                                                        Boolean?
+  created_by                                                        String?                  @db.Char(36)
+  modified_by                                                       String?                  @db.Char(36)
+  created                                                           DateTime?                @db.Timestamp(0)
+  modified                                                          DateTime?                @default(now()) @db.Timestamp(0)
+  email                                                             String?                  @db.VarChar(225)
+  admins_adminsToadmins_created_by                                  admins?                  @relation("adminsToadmins_created_by", fields: [created_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "admins_ibfk_1")
+  admins_adminsToadmins_modified_by                                 admins?                  @relation("adminsToadmins_modified_by", fields: [modified_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "admins_ibfk_2")
+  other_admins_adminsToadmins_created_by                            admins[]                 @relation("adminsToadmins_created_by")
+  other_admins_adminsToadmins_modified_by                           admins[]                 @relation("adminsToadmins_modified_by")
+  categories_adminsTocategories_created_by                          categories[]             @relation("adminsTocategories_created_by")
+  categories_adminsTocategories_modified_by                         categories[]             @relation("adminsTocategories_modified_by")
+  cities_adminsTocities_created_by                                  cities[]                 @relation("adminsTocities_created_by")
+  cities_adminsTocities_modified_by                                 cities[]                 @relation("adminsTocities_modified_by")
+  item_inventory_adminsToitem_inventory_created_by                  item_inventory[]         @relation("adminsToitem_inventory_created_by")
+  item_inventory_adminsToitem_inventory_modified_by                 item_inventory[]         @relation("adminsToitem_inventory_modified_by")
+  items_adminsToitems_created_by                                    items[]                  @relation("adminsToitems_created_by")
+  items_adminsToitems_modified_by                                   items[]                  @relation("adminsToitems_modified_by")
+  parent_items_adminsToparent_items_created_by                      parent_items[]           @relation("adminsToparent_items_created_by")
+  parent_items_adminsToparent_items_modified_by                     parent_items[]           @relation("adminsToparent_items_modified_by")
+  seller_account_details_adminsToseller_account_details_created_by  seller_account_details[] @relation("adminsToseller_account_details_created_by")
+  seller_account_details_adminsToseller_account_details_modified_by seller_account_details[] @relation("adminsToseller_account_details_modified_by")
+  seller_documents_adminsToseller_documents_created_by              seller_documents[]       @relation("adminsToseller_documents_created_by")
+  seller_documents_adminsToseller_documents_modified_by             seller_documents[]       @relation("adminsToseller_documents_modified_by")
+  stores_adminsTostores_created_by                                  stores[]                 @relation("adminsTostores_created_by")
+  stores_adminsTostores_modified_by                                 stores[]                 @relation("adminsTostores_modified_by")
+
+  @@index([created_by], map: "created_by")
+  @@index([modified_by], map: "modified_by")
+}
+
+model categories {
+  id                                    String                  @id @db.Char(36)
+  name                                  String?                 @db.VarChar(255)
+  url_slug                              String?                 @unique(map: "url_slug") @db.VarChar(255)
+  description                           String?                 @db.Text
+  image_url                             String?                 @db.Text
+  meta_keyword                          String?                 @db.Text
+  meta_description                      String?                 @db.Text
+  meta_title                            String?                 @db.Text
+  sequence_no                           Int?
+  is_active                             Boolean?
+  is_deleted                            Boolean?
+  created_by                            String?                 @db.Char(36)
+  modified_by                           String?                 @db.Char(36)
+  created                               DateTime?               @db.Timestamp(0)
+  modified                              DateTime?               @db.DateTime(0)
+  admins_adminsTocategories_created_by  admins?                 @relation("adminsTocategories_created_by", fields: [created_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "categories_ibfk_1")
+  admins_adminsTocategories_modified_by admins?                 @relation("adminsTocategories_modified_by", fields: [modified_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "categories_ibfk_2")
+  category_items                        category_items[]
+  category_parent_items                 category_parent_items[]
+  seller_categories                     seller_categories[]
+  store_categories                      store_categories[]
+
+  @@index([created_by], map: "created_by")
+  @@index([modified_by], map: "modified_by")
+}
+
+model category_items {
+  item_id     String     @db.Char(36)
+  category_id String     @db.Char(36)
+  categories  categories @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "category_items_ibfk_2")
+  items       items      @relation(fields: [item_id], references: [id], onUpdate: Restrict, map: "category_items_ibfk_1")
+
+  @@id([item_id, category_id])
+  @@index([category_id], map: "category_id")
+}
+
+model category_parent_items {
+  parent_item_id String       @db.Char(36)
+  category_id    String       @db.Char(36)
+  categories     categories   @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "category_parent_items_ibfk_2")
+  parent_items   parent_items @relation(fields: [parent_item_id], references: [id], onUpdate: Restrict, map: "category_parent_items_ibfk_1")
+
+  @@id([parent_item_id, category_id])
+  @@index([category_id], map: "category_id")
+}
+
+model cities {
+  code                              String    @id @db.VarChar(255)
+  name                              String?   @db.VarChar(255)
+  state_name                        String?   @db.VarChar(255)
+  country_name                      String?   @db.VarChar(255)
+  is_active                         Boolean?
+  is_deleted                        Boolean?
+  created_by                        String?   @db.Char(36)
+  modified_by                       String?   @db.Char(36)
+  created                           DateTime? @db.Timestamp(0)
+  modified                          DateTime? @db.DateTime(0)
+  admins_adminsTocities_created_by  admins?   @relation("adminsTocities_created_by", fields: [created_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "cities_ibfk_1")
+  admins_adminsTocities_modified_by admins?   @relation("adminsTocities_modified_by", fields: [modified_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "cities_ibfk_2")
+  sellers                           sellers[]
+
+  @@index([created_by], map: "created_by")
+  @@index([modified_by], map: "modified_by")
+}
+
+model item_inventory {
+  id                                        String    @id @db.Char(36)
+  item_id                                   String?   @db.Char(36)
+  item_sku_code                             String?   @unique(map: "item_sku_code") @db.VarChar(255)
+  mrp                                       Decimal?  @db.Decimal(10, 2)
+  discounted_price                          Decimal?  @db.Decimal(10, 2)
+  purchase_pice                             Decimal?  @db.Decimal(10, 2)
+  total_stock                               Float?
+  used_stock                                Float?
+  expiry_date                               DateTime? @db.DateTime(0)
+  sequence_no                               Int?
+  is_active                                 Boolean?
+  is_deleted                                Boolean?
+  created_by                                String?   @db.Char(36)
+  modified_by                               String?   @db.Char(36)
+  created                                   DateTime? @db.Timestamp(0)
+  modified                                  DateTime? @db.DateTime(0)
+  admins_adminsToitem_inventory_created_by  admins?   @relation("adminsToitem_inventory_created_by", fields: [created_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "item_inventory_ibfk_2")
+  items                                     items?    @relation(fields: [item_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "item_inventory_ibfk_1")
+  admins_adminsToitem_inventory_modified_by admins?   @relation("adminsToitem_inventory_modified_by", fields: [modified_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "item_inventory_ibfk_3")
+
+  @@index([created_by], map: "created_by")
+  @@index([item_id], map: "item_id")
+  @@index([modified_by], map: "modified_by")
+}
+
+model items {
+  id                               String           @id @db.Char(36)
+  name                             String?          @db.VarChar(255)
+  seller_id                        String?          @db.Char(36)
+  url_slug                         String?          @db.VarChar(255)
+  sku_code                         String?          @unique(map: "sku_code") @db.VarChar(255)
+  seller_ku_code                   String?          @unique(map: "seller_ku_code") @db.VarChar(255)
+  short_desc                       String?          @db.Text
+  long_desc                        String?          @db.Text
+  search_keywords                  String?          @db.LongText
+  tags                             String?          @db.LongText
+  default_item_id                  String?          @db.Char(36)
+  parent_item_id                   String?          @db.Char(36)
+  is_default                       Boolean?
+  image_url                        String?          @db.Text
+  meta_keyword                     String?          @db.Text
+  meta_description                 String?          @db.Text
+  meta_title                       String?          @db.Text
+  mrp                              Decimal?         @db.Decimal(10, 2)
+  discounted_price                 Decimal?         @db.Decimal(10, 2)
+  item_gallery                     String?          @db.LongText
+  attributes                       String?          @db.LongText
+  kv_description                   String?          @db.LongText
+  sequence_no                      Int?
+  in_stock                         Boolean?
+  is_active                        Boolean?
+  is_deleted                       Boolean?
+  created_by                       String?          @db.Char(36)
+  modified_by                      String?          @db.Char(36)
+  created                          DateTime?        @db.Timestamp(0)
+  modified                         DateTime?        @db.DateTime(0)
+  admins_adminsToitems_created_by  admins?          @relation("adminsToitems_created_by", fields: [created_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "items_ibfk_3")
+  admins_adminsToitems_modified_by admins?          @relation("adminsToitems_modified_by", fields: [modified_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "items_ibfk_4")
+  parent_items                     parent_items?    @relation(fields: [parent_item_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "items_ibfk_2")
+  sellers                          sellers?         @relation(fields: [seller_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "items_ibfk_1")
+  category_items                   category_items[]
+  item_inventory                   item_inventory[]
+
+  @@index([created_by], map: "created_by")
+  @@index([modified_by], map: "modified_by")
+  @@index([parent_item_id], map: "parent_item_id")
+  @@index([seller_id], map: "seller_id")
+}
+
+model parent_items {
+  id                                      String                  @id @db.Char(36)
+  name                                    String?                 @db.VarChar(255)
+  seller_id                               String?                 @db.Char(36)
+  url_slug                                String?                 @db.VarChar(255)
+  sku_code                                String?                 @unique(map: "sku_code") @db.VarChar(255)
+  short_desc                              String?                 @db.Text
+  long_desc                               String?                 @db.Text
+  search_keywords                         String?                 @db.LongText
+  tags                                    String?                 @db.LongText
+  default_item_id                         String?                 @db.Char(36)
+  sequence_no                             Int?
+  is_active                               Boolean?
+  is_deleted                              Boolean?
+  created_by                              String?                 @db.Char(36)
+  modified_by                             String?                 @db.Char(36)
+  created                                 DateTime?               @db.Timestamp(0)
+  modified                                DateTime?               @db.DateTime(0)
+  admins_adminsToparent_items_created_by  admins?                 @relation("adminsToparent_items_created_by", fields: [created_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "parent_items_ibfk_2")
+  admins_adminsToparent_items_modified_by admins?                 @relation("adminsToparent_items_modified_by", fields: [modified_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "parent_items_ibfk_3")
+  sellers                                 sellers?                @relation(fields: [seller_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "parent_items_ibfk_1")
+  category_parent_items                   category_parent_items[]
+  items                                   items[]
+
+  @@index([created_by], map: "created_by")
+  @@index([modified_by], map: "modified_by")
+  @@index([seller_id], map: "seller_id")
+}
+
+model seller_account_details {
+  id                                                String    @id @db.Char(36)
+  seller_id                                         String?   @db.Char(36)
+  pan_no                                            String?   @db.VarChar(255)
+  aadhar_no                                         String?   @db.VarChar(255)
+  gstn                                              String?   @db.VarChar(255)
+  license                                           String?   @db.VarChar(255)
+  bank_account_no                                   String?   @db.VarChar(255)
+  bank_name                                         String?   @db.VarChar(255)
+  bank_ifsc                                         String?   @db.VarChar(255)
+  notes                                             String?   @db.Text
+  is_deleted                                        Boolean?
+  created_by                                        String?   @db.Char(36)
+  modified_by                                       String?   @db.Char(36)
+  created                                           DateTime? @db.Timestamp(0)
+  modified                                          DateTime? @db.DateTime(0)
+  admins_adminsToseller_account_details_created_by  admins?   @relation("adminsToseller_account_details_created_by", fields: [created_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "seller_account_details_ibfk_1")
+  admins_adminsToseller_account_details_modified_by admins?   @relation("adminsToseller_account_details_modified_by", fields: [modified_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "seller_account_details_ibfk_2")
+
+  @@index([created_by], map: "created_by")
+  @@index([modified_by], map: "modified_by")
+}
+
+model seller_categories {
+  seller_id   String     @db.Char(36)
+  category_id String     @db.Char(36)
+  categories  categories @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "seller_categories_ibfk_2")
+  sellers     sellers    @relation(fields: [seller_id], references: [id], onUpdate: Restrict, map: "seller_categories_ibfk_1")
+
+  @@id([seller_id, category_id])
+  @@index([category_id], map: "category_id")
+}
+
+model seller_documents {
+  id                                          String                          @id @db.Char(36)
+  seller_id                                   String?                         @db.Char(36)
+  document_type                               seller_documents_document_type?
+  document_detail                             String?                         @db.VarChar(255)
+  document_detail2                            String                          @db.VarChar(255)
+  url                                         String?                         @db.Text
+  created_by                                  String?                         @db.Char(36)
+  modified_by                                 String?                         @db.Char(36)
+  created                                     DateTime?                       @db.Timestamp(0)
+  modified                                    DateTime?                       @db.DateTime(0)
+  admins_adminsToseller_documents_created_by  admins?                         @relation("adminsToseller_documents_created_by", fields: [created_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "seller_documents_ibfk_1")
+  admins_adminsToseller_documents_modified_by admins?                         @relation("adminsToseller_documents_modified_by", fields: [modified_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "seller_documents_ibfk_2")
+
+  @@index([created_by], map: "created_by")
+  @@index([modified_by], map: "modified_by")
+}
+
+model seller_stores {
+  seller_id String  @db.Char(36)
+  store_id  String  @db.Char(36)
+  sellers   sellers @relation(fields: [seller_id], references: [id], onUpdate: Restrict, map: "seller_stores_ibfk_1")
+  stores    stores  @relation(fields: [store_id], references: [id], onUpdate: Restrict, map: "seller_stores_ibfk_2")
+
+  @@id([seller_id, store_id])
+  @@index([store_id], map: "store_id")
+}
+
+model sellers {
+  id                String              @id @db.Char(36)
+  name              String?             @db.VarChar(255)
+  business_name     String?             @db.VarChar(255)
+  city_code         String?             @db.VarChar(255)
+  code              String?             @unique(map: "code") @db.VarChar(255)
+  description       String?             @db.Text
+  email             String?             @db.VarChar(255)
+  mobile            String?             @db.VarChar(255)
+  business_mobile   String?             @db.VarChar(255)
+  username          String?             @db.VarChar(255)
+  password          String?             @db.VarChar(255)
+  business_logo_url String?             @db.Text
+  request_accept    Boolean?
+  sequence_no       Int?
+  is_active         Boolean?
+  is_deleted        Boolean?
+  created_by        String?             @db.Char(36)
+  modified_by       String?             @db.Char(36)
+  created           DateTime?           @db.Timestamp(0)
+  modified          DateTime?           @db.DateTime(0)
+  cities            cities?             @relation(fields: [city_code], references: [code], onDelete: Restrict, onUpdate: Restrict, map: "sellers_ibfk_1")
+  items             items[]
+  parent_items      parent_items[]
+  seller_categories seller_categories[]
+  seller_stores     seller_stores[]
+
+  @@index([city_code], map: "city_code")
+}
+
+model store_categories {
+  store_id    String     @db.Char(36)
+  category_id String     @db.Char(36)
+  categories  categories @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "store_categories_ibfk_2")
+  stores      stores     @relation(fields: [store_id], references: [id], onUpdate: Restrict, map: "store_categories_ibfk_1")
+
+  @@id([store_id, category_id])
+  @@index([category_id], map: "category_id")
+}
+
+model stores {
+  id                                String             @id @db.Char(36)
+  name                              String?            @db.VarChar(255)
+  url_slug                          String?            @unique(map: "url_slug") @db.VarChar(255)
+  description                       String?            @db.Text
+  image_url                         String?            @db.Text
+  meta_keyword                      String?            @db.Text
+  meta_description                  String?            @db.Text
+  meta_title                        String?            @db.Text
+  sequence_no                       Int?
+  is_active                         Boolean?
+  is_deleted                        Boolean?
+  created_by                        String?            @db.Char(36)
+  modified_by                       String?            @db.Char(36)
+  created                           DateTime?          @db.Timestamp(0)
+  modified                          DateTime?          @db.DateTime(0)
+  admins_adminsTostores_created_by  admins?            @relation("adminsTostores_created_by", fields: [created_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "stores_ibfk_1")
+  admins_adminsTostores_modified_by admins?            @relation("adminsTostores_modified_by", fields: [modified_by], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "stores_ibfk_2")
+  seller_stores                     seller_stores[]
+  store_categories                  store_categories[]
+
+  @@index([created_by], map: "created_by")
+  @@index([modified_by], map: "modified_by")
+}
+
+enum seller_documents_document_type {
+  pan
+  aadhar
+  gstn
+  food_license
+  shop_license
+  other
+}
