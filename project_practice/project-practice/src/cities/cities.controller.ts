@@ -17,6 +17,15 @@ export class CitiesController
   @Get()
   findAll() 
   {return this.citiesService.findAll();}
+  
+  //filter starts
+  @Get('filter/')
+  filters(@Body() args : {}) 
+  {
+    //console.log(args);
+    return this.citiesService.filter(args);
+  }
+  //filter ends
 
   @Get(':id')
   findOne(@Param('id') id: string) 
@@ -36,6 +45,5 @@ export class CitiesController
     //const myid:Prisma.citiesWhereUniqueInput = {code: id}
     return this.citiesService.remove(id);
   }
-
 
 }

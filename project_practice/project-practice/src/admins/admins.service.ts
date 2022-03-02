@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+//import { type } from 'os';
 import { PrismaService } from 'src/prisma.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 
+//export type admin = any;
 @Injectable()
 export class AdminsService 
 {
@@ -27,10 +29,15 @@ export class AdminsService
     return this.Prisma.admins.findMany();
   }
 
-  findOne(id: Prisma.adminsWhereUniqueInput) 
+  // findOne(id: Prisma.adminsWhereUniqueInput) 
+  // {
+  //   console.log(`This action returns a #${id.id} admin`);
+  //   return this.Prisma.admins.findUnique({where: id});
+  // }
+  findOne(username: string) 
   {
-    console.log(`This action returns a #${id.id} admin`);
-    return this.Prisma.admins.findUnique({where: id});
+    console.log(`This action returns a username : ${username} admin`);
+    return this.Prisma.admins.findFirst({where: {username}});
   }
 
   update(id: number, updateAdminDto: UpdateAdminDto) 

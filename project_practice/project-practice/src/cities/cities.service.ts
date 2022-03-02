@@ -55,4 +55,13 @@ export class CitiesService
     })
     return rm_city;
   }
+
+  //filter
+  filter(args : Prisma.citiesFindManyArgs) 
+  {
+    const filter_city = this.Prisma.cities.findMany(args);
+    //console.log(filter_city);
+    console.log(`This action returns cities after filter`);
+    return filter_city;
+  }
 }

@@ -18,13 +18,18 @@ export class AdminsController {
     return this.adminsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) 
-  {
-    const myid:Prisma.adminsWhereUniqueInput = {id: id}
-    return this.adminsService.findOne(myid);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) 
+  // {
+  //   const myid:Prisma.adminsWhereUniqueInput = {id: id}
+  //   return this.adminsService.findOne(myid);
+  // }
 
+  @Get(':id')
+  findOne(@Param('id') username: string) 
+  {
+    return this.adminsService.findOne(username);
+  }
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
     return this.adminsService.update(+id, updateAdminDto);
